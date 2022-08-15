@@ -30,7 +30,34 @@ input_array = [
 # should keep widgets in addressable 9x9 array
 # should provide input possibility for bg and fg, e.g. as nested 9x9 array
 class SudokuFrame(tk.Frame):
-    pass
+    """A frame that constructs a 9x9 grid with input or label widgets"""
+    def __init__(self, parent, widget_type, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.widget_type = widget_type
+        self.variable_grid, self.widget_grid = self.build_sudoku('input')
+
+    def build_sudoku(self, kind):
+        """Based on kind constructs a 9x9 list with respective input type vars or widget"""
+
+        if kind == 'input':
+            wdg_type, var_type = tk.ttk.Entry, tk.IntVar
+        else:
+            wdg_type, var_type = tk.ttk.Label, tk.StringVar
+
+        var_grid = list()
+        wdg_grid = list()
+        for i in range(9):
+            var_row = list()
+            wdg_row = list()
+            for j in range(9):
+                var = tk.IntVar()
+                wdg = tk.ttk.Entry(textvariable=var)
+                var_row.append(var)
+                wdg_row.append(wdg)
+            var_grid.append(var_row)
+            wdg_grid.append(wdg_row)
+        return var_grid, wdg_grid
+
 
 
 fields = deepcopy(input_array)
