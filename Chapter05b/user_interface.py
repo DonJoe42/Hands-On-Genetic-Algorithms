@@ -2,18 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 import data_model as d
 
-# TODO write child class of Frame containing a structured sudoku cluster of widgets
-# this should either take in problem values or display values from solution steps
-# only integer values allowed
-# should provide input possibility for bg and fg, e.g. as nested 9x9 array
-
 
 class BasicForm(ttk.Frame):
     """This is the main application that takes in a problem and runs the solution algorithm"""
-    def __init__(self, parent, kind, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.kind = kind
         self.parent = parent
 
         # Add header
@@ -26,13 +20,78 @@ class BasicForm(ttk.Frame):
         ).grid(row=0, column=0, sticky=tk.E+tk.W)
 
         # Build input frame for Sudoku problem
-        self.sudoku_frame = SudokuFrame(self, self.kind)
-        self.sudoku_frame.grid(column=0, row=1, sticky=tk.E+tk.W)
+        self.input_frame = SudokuFrame(self, 'input')
+        self.input_frame.grid(column=0, row=1, sticky=tk.E+tk.W)
+        self.input_variables = self.input_frame.variable_grid
+        self.input_widgets = self.input_frame.widget_grid
+
+        # Will be filled after input is finished
+        self.output_frame = ''
+        self.output_variables = ''
+        self.output_widgets = ''
 
         # Build button frame and populate with start and quit
-        self.button_frame = ButtonFrame(self)
-        self.start_button = StartButton(self.button_frame)
-        self.quit_button = QuitButton(self.button_frame, self.parent)
+        self.button_frame = ttk.Frame(self)
+        self.button_frame.grid(row=99, column=0, sticky="ew")
+        self.button_frame.columnconfigure(0, weight=1)
+        self.button_frame.columnconfigure(1, weight=1)
+
+        # Add status label
+        self.status = tk.StringVar()
+        self.status.set('Waiting for entry of sudoku problem ...')
+        self.status_frame = ttk.LabelFrame(self, text='Status', padding=5)
+        self.status_frame.grid(row=98, column=0, sticky='we')
+        self.status_label = ttk.Label(
+            self.status_frame,
+            anchor='w',
+            justify='left',
+            textvariable=self.status
+        )
+        self.status_label.pack(anchor='w')
+
+        self.quit_button = ttk.Button(
+            self.button_frame,
+            text='Quit',
+            padding=5,
+            command=self._on_quit
+        )
+        self.quit_button.pack(side='right')
+
+        self.start_button = ttk.Button(
+            self.button_frame,
+            text='Start',
+            padding=5,
+            command=self._on_start
+        )
+        self.start_button.pack(side='right')
+
+    def _on_start(self):
+        # start greedy algorithm
+        self.start_button.configure(default='disabled')
+        self.event_generate('<<StartSolver>>')
+
+    def _on_quit(self):
+        self.master.destroy()
+
+    def prepare_greedy(self):
+        """Replace input frame with output frame, that visualizes solver results"""
+        self.status.set('Starting greedy solver ...')
+        self.input_frame.grid_forget()
+
+        # Build output frame for Sudoku solution
+        self.output_frame = SudokuFrame(self, 'output')
+        self.output_variables = self.output_frame.variable_grid
+        self.output_widgets = self.output_frame.widget_grid
+
+        # Prefill output variables with input values and color respective widgets
+        for i in range(9):
+            for j in range(9):
+                input_value = self.input_variables[i][j].get()
+                if input_value:
+                    self.output_variables[i][j].set(input_value)
+                    self.output_widgets[i][j].configure(background='black', foreground='white')
+
+        self.output_frame.grid(column=0, row=2, sticky=tk.E + tk.W)
 
 
 class SudokuFrame(ttk.LabelFrame):
@@ -40,7 +99,7 @@ class SudokuFrame(ttk.LabelFrame):
     def __init__(self, parent, kind, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.kind = kind
-        self.build_sudoku_sub_frame()
+        self.widget_grid, self.variable_grid = self.build_sudoku_sub_frame()
         self.set_label_name()
         self.columnconfigure(0, weight=0)
         self.rowconfigure(0, weight=0)
@@ -48,6 +107,8 @@ class SudokuFrame(ttk.LabelFrame):
     def build_sudoku_sub_frame(self):
         sub_frame = SudokuSubFrame(self, self.kind)
         sub_frame.grid(column=0, row=0, sticky='nsew')
+
+        return sub_frame.get_widget_grid(), sub_frame.get_variable_grid()
 
     def set_label_name(self):
         my_label = 'Sudoku Problem' if self.kind == 'input' else 'Sudoku Solution'
@@ -89,6 +150,8 @@ class SudokuSubFrame(ttk.Frame):
                     font=('consolas 30'),
                     justify='center'
                 )
+                if wdg_type == ttk.Label:
+                    wdg.configure(anchor='center', borderwidth=2, relief='groove')
                 wdg.grid(row=sub_row, column=sub_col)
                 wdg_row.append(wdg)
             wdg_grid.append(wdg_row)
@@ -115,34 +178,3 @@ class SudokuSubFrame(ttk.Frame):
 
     def get_super_frames(self):
         return self.super_frame
-
-
-class ButtonFrame(ttk.LabelFrame):
-    """Adds frame that holds various buttons depending on phase of program"""
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, text='Buttons', *args, **kwargs)
-        self.grid(row=99, column=0, sticky="ew")
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-
-
-class StartButton(ttk.Button):
-    """Button that launches the application and disappears"""
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, text='Start', padding=5, command=self.on_click, *args, **kwargs)
-        self.grid(row=0, column=0, sticky='w')
-
-    def on_click(self):
-        # start greedy algorithm
-        self.configure(default='disabled')
-
-
-class QuitButton(ttk.Button):
-    """Button that quits the application at any time"""
-    def __init__(self, parent, application, *args, **kwargs):
-        super().__init__(parent, text='Quit', padding=5, command=self.on_click, *args, **kwargs)
-        self.grid(row=0, column=99, sticky='e')
-        self.application = application
-
-    def on_click(self):
-        self.application.destroy()

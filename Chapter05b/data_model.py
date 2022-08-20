@@ -5,7 +5,6 @@ import tkinter
 
 def var_array():
     """Constructs a 9x9 list with string vars"""
-    print('grid function called')
     var_grid = list()
     for i in range(9):
         var_row = list()
@@ -16,10 +15,10 @@ def var_array():
     return var_grid
 
 
-def save_data(data, name):
-    pickle.dump(data, name)
+def save_data(data, file):
+    pickle.dump(data, file)
 
 
-def load_data(name):
-    data = pickle.load(name)
+def load_data(file):
+    data = pickle.load(file)
     return data
