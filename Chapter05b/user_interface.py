@@ -26,9 +26,9 @@ class BasicForm(ttk.Frame):
         self.input_widgets = self.input_frame.widget_grid
 
         # Will be filled after input is finished
-        self.output_frame = ''
-        self.output_variables = ''
-        self.output_widgets = ''
+        self.output_frame = ttk.Frame()
+        self.output_variables = list()
+        self.output_widgets = list()
 
         # Build button frame and populate with start and quit
         self.button_frame = ttk.Frame(self)
@@ -92,6 +92,13 @@ class BasicForm(ttk.Frame):
                     self.output_widgets[i][j].configure(background='black', foreground='white')
 
         self.output_frame.grid(column=0, row=2, sticky=tk.E + tk.W)
+
+    def update_output_variables(self, data):
+        for i in range(9):
+            for j in range(9):
+                if self.output_variables[i][j].get() == '' and data[i][j] > 0:
+                    self.output_variables[i][j].set(data[i][j])
+                    self.output_widgets[i][j].configure(background='green', foreground='white')
 
 
 class SudokuFrame(ttk.LabelFrame):
