@@ -2,11 +2,15 @@ import tkinter as tk
 import data_model as d
 import user_interface as ui
 import greedy_sudoku as gs
+import ga_solver as ga
 
 
-# TODO: start greedy algorithm from controll.py and return greedy result
-# TODO: check validity of greedy result and either close probleme or
+from itertools import chain
+
+
 # TODO: start GA to search for final solution
+# TODO: Refactor ga_solver as class
+# TODO: Add callback / getter functions to return results to controll.py
 
 
 class Application(tk.Tk):
@@ -41,6 +45,16 @@ class Application(tk.Tk):
         self.greedy_solution = self.greedy_solver()
         self.root_frame.update_output_variables(self.greedy_solution)
 
+        if any(x == 0 for x in chain(*self.greedy_solution)):
+            self.root_frame.status.set('Starting genetic algorithm search ...')
+            with open('greedy_solution_grid.pkl', 'wb') as greedy_solution_file:
+                d.save_data(self.greedy_solution, greedy_solution_file)
+        else:
+            self.root_frame.status.set('Found solution!')
+
+        # Start genetic algorithm search for result
+
+
     @staticmethod
     def greedy_solver():
         """Get greedy solution for input data"""
@@ -50,6 +64,16 @@ class Application(tk.Tk):
         greedy_problem.solve_sudoku()
 
         return greedy_problem.get_solution()
+
+    @staticmethod
+    def ga_solver():
+        """Get ga solution for greedy solution data"""
+        with open('greedy_solution_grid.pkl', 'rb') as greedy_solution_file:
+            greedy_solution_data = d.load_data(greedy_solution_file)
+        ga_problem = ga.main()
+        ga_problem.solve_sudoku()
+
+        return ga_problem.get_solution()
 
 
 if __name__ == "__main__":

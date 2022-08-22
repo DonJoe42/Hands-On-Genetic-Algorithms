@@ -116,7 +116,7 @@ class GreedySolver:
                                 break
 
     def get_solution(self):
-        return self.solution
+        return self.solution.tolist()
 
     def get_possibilities(self):
         return self.possibilities
@@ -128,12 +128,10 @@ if __name__ == '__main__':
     solvable.solve_sudoku()
     print(solvable.get_solution())
     print(solvable.get_possibilities())
-    print(np.sum(solvable.get_solution()==0))
 
     print(np.array(NOT_SOLVABLE))
     not_solvable = GreedySolver(NOT_SOLVABLE)
     not_solvable.solve_sudoku()
     print(not_solvable.get_solution())
     print(not_solvable.get_possibilities())
-    print(np.sum(not_solvable.get_solution() == 0))
 
