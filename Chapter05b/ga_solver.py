@@ -16,13 +16,14 @@ class GASolver:
 
     def __init__(self,
                  sudoku_input,
-                 status_callback=None,
                  population_size=1000,
                  max_generations=500,
                  hall_of_fame_size=50,
                  p_crossover=0.9,
                  p_mutation=0.2,
-                 random_seed=42
+                 random_seed=42,
+                 status_callback=None,
+                 final_callback=None
                  ):
         self.population_size = population_size
         self.max_generations = max_generations
@@ -30,6 +31,7 @@ class GASolver:
         self.p_crossover = p_crossover
         self.p_mutation = p_mutation
         self.status_callback = status_callback
+        self.final_callback = final_callback
 
         random.seed(random_seed)
 
@@ -121,9 +123,6 @@ class GASolver:
 
     # Genetic Algorithm flow:
     def ga_solve(self):
-
-        self.status_callback('This callback works')
-
         # create initial population (generation 0):
         new_population = self.toolbox.populationCreator(n=self.population_size)
 
@@ -145,6 +144,13 @@ class GASolver:
         # new_population, logbook = algorithms.eaSimple(new_population, toolbox, cxpb=P_CROSSOVER, mutpb=P_MUTATION,
         #                                                       ngen=MAX_GENERATIONS, stats=stats, halloffame=hof,
         #                                                       verbose=True)
+
+        solution = self.n_sudoku.get_solution(hof.items[0])
+        if hof.items[0].fitness.values[0] == 0:
+            self.final_callback(True, solution)
+        else:
+            self.final_callback(False)
+
 
         # print hall of fame members info:
         print("- Best solutions are:")

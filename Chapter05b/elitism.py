@@ -44,7 +44,7 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
             mutpb = save_mutpb
         else:
             stuck_count = 0
-            status_callback(f'radiation is {radiation}')
+            # status_callback(f'radiation is {radiation}')
 
         # Select the next generation individuals
         if stuck[0] < stuck_count:
@@ -97,7 +97,8 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
                 stuck_count = 0
 
         if radiation == 0:
-            status_callback(f'stuck count is {stuck_count}')
+            pass
+            # status_callback(f'stuck count is {stuck_count}')
 
         last_min = new_min
 

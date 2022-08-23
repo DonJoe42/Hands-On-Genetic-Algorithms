@@ -53,10 +53,18 @@ class Application(tk.Tk):
             self.root_frame.status.set('Found solution!')
 
         # Start genetic algorithm search for result
-        # self.ga_solver()
+        self.ga_solver()
 
     def update_status(self, new_status):
         self.root_frame.status.set(new_status)
+        self.update()
+
+    def final_result(self, solved, result=None):
+        if solved:
+            self.root_frame.update_output_variables(result)
+            self.root_frame.status.set('Solution found!')
+        else:
+            self.root_frame.status.set('No solution found!')
 
     @staticmethod
     def greedy_solver():
@@ -75,7 +83,11 @@ class Application(tk.Tk):
             greedy_solution_data = d.load_data(greedy_solution_file)
 
         self.update_status('before solver')
-        ga_problem = ga.GASolver(greedy_solution_data, self.update_status)
+        ga_problem = ga.GASolver(
+            greedy_solution_data,
+            status_callback=self.update_status,
+            final_callback=self.final_result
+        )
         ga_problem.ga_solve()
 
 
