@@ -3,33 +3,6 @@ import numpy as np
 from itertools import chain
 
 
-SOLVABLE = [
-    [0, 0, 0,   0, 1, 3,   0, 0, 0],
-    [0, 0, 0,   0, 0, 0,   6, 7, 4],
-    [0, 4, 9,   0, 0, 0,   0, 0, 0],
-
-    [0, 0, 0,   0, 0, 0,   5, 9, 0],
-    [0, 0, 0,   0, 8, 7,   0, 0, 0],
-    [6, 9, 1,   0, 0, 0,   0, 0, 0],
-
-    [1, 0, 0,   7, 0, 4,   0, 0, 0],
-    [2, 0, 0,   6, 0, 0,   0, 0, 1],
-    [0, 5, 0,   0, 0, 0,   0, 4, 3]
-]
-
-NOT_SOLVABLE = [
-            [0, 3, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 0, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 0],
-            [4, 0, 0, 8, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 2, 0, 0, 0, 0],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 0, 0, 0, 7, 0]
-        ]
-
-
 class GreedySolver:
     """
     Takes in a sudoku problem as a 9x9 array, where missing numbers are represented as zeroes.
@@ -120,18 +93,3 @@ class GreedySolver:
 
     def get_possibilities(self):
         return self.possibilities
-
-
-if __name__ == '__main__':
-    print(np.array(SOLVABLE))
-    solvable = GreedySolver(SOLVABLE)
-    solvable.solve_sudoku()
-    print(solvable.get_solution())
-    print(solvable.get_possibilities())
-
-    print(np.array(NOT_SOLVABLE))
-    not_solvable = GreedySolver(NOT_SOLVABLE)
-    not_solvable.solve_sudoku()
-    print(not_solvable.get_solution())
-    print(not_solvable.get_possibilities())
-

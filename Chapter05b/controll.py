@@ -53,7 +53,10 @@ class Application(tk.Tk):
             self.root_frame.status.set('Found solution!')
 
         # Start genetic algorithm search for result
+        # self.ga_solver()
 
+    def update_status(self, new_status):
+        self.root_frame.status.set(new_status)
 
     @staticmethod
     def greedy_solver():
@@ -65,15 +68,15 @@ class Application(tk.Tk):
 
         return greedy_problem.get_solution()
 
-    @staticmethod
-    def ga_solver():
+    def ga_solver(self):
         """Get ga solution for greedy solution data"""
+
         with open('greedy_solution_grid.pkl', 'rb') as greedy_solution_file:
             greedy_solution_data = d.load_data(greedy_solution_file)
-        ga_problem = ga.main()
-        ga_problem.solve_sudoku()
 
-        return ga_problem.get_solution()
+        self.update_status('before solver')
+        ga_problem = ga.GASolver(greedy_solution_data, self.update_status)
+        ga_problem.ga_solve()
 
 
 if __name__ == "__main__":

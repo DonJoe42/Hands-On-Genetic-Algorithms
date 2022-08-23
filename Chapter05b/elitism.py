@@ -4,7 +4,7 @@ import random
 
 
 def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
-             halloffame=None, verbose=__debug__, stuck=(1e9, None)):
+             halloffame=None, status_callback=None, stuck=(1e9, None)):
     """This algorithm is similar to DEAP eaSimple() algorithm, with the modification that
     halloffame is used to implement an elitism mechanism. The individuals contained in the
     halloffame are directly injected into the next generation and are not subject to the
@@ -27,8 +27,8 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
-    if verbose:
-        print(logbook.stream)
+    if status_callback:
+        status_callback(str(logbook.stream))
 
     stuck_count = 0
     last_min = False
@@ -44,18 +44,18 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
             mutpb = save_mutpb
         else:
             stuck_count = 0
-            print(f'radiation is {radiation}')
+            status_callback(f'radiation is {radiation}')
 
         # Select the next generation individuals
         if stuck[0] < stuck_count:
             if stuck[1] == 'comet':
                 # Generate new population for non-hof (Comet-Strike)
-                print('the comet strikes')
+                status_callback('the comet strikes')
                 offspring = toolbox.populationCreator(len(population) - 3)
                 offspring.extend(halloffame.items[:3])
                 halloffame.clear()
             if stuck[1] == 'chernobyl':
-                print('radiation leak')
+                status_callback('radiation leak')
                 mutpb = 0.5
                 radiation = stuck[0]
             stuck_count = 0
@@ -84,8 +84,8 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         # Append the current generation statistics to the logbook
         record = stats.compile(population) if stats else {}
         logbook.record(gen=gen, nevals=len(invalid_ind), **record)
-        if verbose:
-            print(logbook.stream)
+        if status_callback:
+            status_callback(str(logbook.stream))
 
         # Check if minimum has change vs previous iteration, else rais stuck_count
         new_min = min(logbook.select('min'))
@@ -97,7 +97,7 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
                 stuck_count = 0
 
         if radiation == 0:
-            print(f'stuck count is {stuck_count}')
+            status_callback(f'stuck count is {stuck_count}')
 
         last_min = new_min
 
