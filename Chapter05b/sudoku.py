@@ -86,6 +86,18 @@ class SudokuProblem:
 
         print(mapped_solution)
 
+    def get_solution(self, solution):
+        """
+        Returns a zero-based sudoku solution in the final one-based format
+        :param solution: a sudoku solution (zero-based) to be printed
+        """
+
+        # fill empty sudoku cells with solution
+        mapped_solution = self.map_solution(solution)
+
+        return mapped_solution.tolist()
+
+
 
 # testing the class:
 def main():
