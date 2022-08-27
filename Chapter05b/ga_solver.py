@@ -136,7 +136,7 @@ class GASolver:
         new_population, logbook = elitism.eaSimpleWithElitism(new_population, self.toolbox, cxpb=self.p_crossover,
                                                               mutpb=self.p_mutation, ngen=self.max_generations,
                                                               stats=stats, halloffame=hof,
-                                                              status_callback=self.print_solution_stream,
+                                                              status_callback=self.status_callback,
                                                               stuck=(50, 'chernobyl'))
 
         # new_population, logbook = algorithms.eaSimple(new_population, toolbox, cxpb=P_CROSSOVER, mutpb=P_MUTATION,
@@ -144,10 +144,10 @@ class GASolver:
         #                                                       verbose=True)
 
         solution = self.n_sudoku.get_solution(hof.items[0])
-        # if hof.items[0].fitness.values[0] == 0:
-        #     self.final_callback(True, solution)
-        # else:
-        #     self.final_callback(False)
+        if hof.items[0].fitness.values[0] == 0:
+            self.final_callback(True, solution)
+        else:
+            self.final_callback(False)
 
 
         # print hall of fame members info:

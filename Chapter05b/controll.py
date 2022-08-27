@@ -18,12 +18,13 @@ class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title('Hybrid GA Sudoku Solver')
-        self.root_frame = ui.BasicForm(self, padding=10)  # TODO: replace this with a new form class
+        self.root_frame = ui.BasicForm(self, padding=10)
         self.root_frame.grid(sticky='nsew')
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.root_frame.bind('<<StartSolver>>', self._on_start)
         self.greedy_solution = ''
+        self.greedy_possibilities = ''
 
     def _on_start(self, *_):
         input_grid = list()
@@ -42,18 +43,20 @@ class Application(tk.Tk):
 
         self.root_frame.prepare_greedy()
         # Try greedy solution of sudoku puzzle first
-        self.greedy_solution = self.greedy_solver()
+        self.greedy_solution, self.greedy_possibilities = self.greedy_solver()
         self.root_frame.update_output_variables(self.greedy_solution)
 
         if any(x == 0 for x in chain(*self.greedy_solution)):
             self.root_frame.status.set('Starting genetic algorithm search ...')
             with open('greedy_solution_grid.pkl', 'wb') as greedy_solution_file:
                 d.save_data(self.greedy_solution, greedy_solution_file)
+            with open('greedy_possibilities_grid.pkl', 'wb') as greedy_possibilities_file:
+                d.save_data(self.greedy_possibilities, greedy_possibilities_file)
         else:
             self.root_frame.status.set('Found solution!')
 
         # Start genetic algorithm search for result
-        self.ga_solver()
+        # self.ga_solver()
 
     def update_status(self, new_status):
         self.root_frame.status.set(new_status)
@@ -74,17 +77,19 @@ class Application(tk.Tk):
         greedy_problem = gs.GreedySolver(input_data)
         greedy_problem.solve_sudoku()
 
-        return greedy_problem.get_solution()
+        return greedy_problem.get_solution(), greedy_problem.get_possibilities()
 
     def ga_solver(self):
         """Get ga solution for greedy solution data"""
 
         with open('greedy_solution_grid.pkl', 'rb') as greedy_solution_file:
             greedy_solution_data = d.load_data(greedy_solution_file)
+        with open('greedy_possibilities_grid.pkl', 'rb') as greedy_possibilities_file:
+            greedy_possibilities_data = d.load_data(greedy_possibilities_file)
 
-        self.update_status('before solver')
         ga_problem = ga.GASolver(
             greedy_solution_data,
+            greedy_possibilities_data,
             status_callback=self.update_status,
             final_callback=self.final_result
         )
