@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 import data_model as d
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 
 class BasicForm(ttk.Frame):
@@ -73,6 +77,9 @@ class BasicForm(ttk.Frame):
     def _on_quit(self):
         self.master.destroy()
 
+    def _on_show(self):
+        self.event_generate('<<ShowGaStats>>')
+
     def prepare_greedy(self):
         """Replace input frame with output frame, that visualizes solver results"""
         self.status.set('Starting greedy solver ...')
@@ -99,6 +106,14 @@ class BasicForm(ttk.Frame):
                 if self.output_variables[i][j].get() == '' and data[i][j] > 0:
                     self.output_variables[i][j].set(data[i][j])
                     self.output_widgets[i][j].configure(background='green', foreground='white')
+
+    def show_ga_stats(self):
+        ttk.Button(
+            self.button_frame,
+            text='Show GA Stats',
+            padding=5,
+            command=self._on_show
+        ).pack(side='right')
 
 
 class SudokuFrame(ttk.LabelFrame):
@@ -185,3 +200,23 @@ class SudokuSubFrame(ttk.Frame):
 
     def get_super_frames(self):
         return self.super_frame
+
+
+class YieldChartView(tk.Frame):
+    def __init__(self, parent, min_values, mean_values):
+        super().__init__(parent)
+        self.min_values = min_values
+        self.mean_values = mean_values
+        self.figure = Figure(figsize=(6, 4), dpi=100)
+        self.canvas_tkagg = FigureCanvasTkAgg(self.figure, master=self)
+        canvas = self.canvas_tkagg.get_tk_widget()
+        canvas.pack(fill='both', expand=True)
+        self.toolbar = NavigationToolbar2Tk(self.canvas_tkagg, self)
+        self.axes = self.figure.add_subplot(1, 1, 1)
+        self.axes.set_xlabel('Generation')
+        self.axes.set_ylabel('Min / Average Fitness')
+        self.axes.set_title('Min and Average fitness over Generations')
+
+        self.axes.plot(self.min_values, color='red')
+        self.axes.plot(self.mean_values, color='green')
+

@@ -155,22 +155,11 @@ class GASolver:
         for i in range(self.hall_of_fame_size):
             print(i, ": ", hof.items[i].fitness.values[0], " -> ", hof.items[i])
 
-        # plot statistics:
+        # get statistics:
         min_fitness_values, mean_fitness_values = logbook.select("min", "avg")
-        plt.figure(1)
-        sns.set_style("whitegrid")
-        plt.plot(min_fitness_values, color='red')
-        plt.plot(mean_fitness_values, color='green')
-        plt.xlabel('Generation')
-        plt.ylabel('Min / Average Fitness')
-        plt.title('Min and Average fitness over Generations')
-
-        # plot best solution:
-        sns.set_style("whitegrid", {'axes.grid' : False})
         self.n_sudoku.plot_solution(hof.items[0])
 
-        # show both plots:
-        plt.show()
+        return min_fitness_values, mean_fitness_values
 
 
 if __name__=="__main__":

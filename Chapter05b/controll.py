@@ -23,6 +23,7 @@ class Application(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.root_frame.bind('<<StartSolver>>', self._on_start)
+        self.root_frame.bind('<<ShowGaStats>>', self._on_show)
         self.greedy_solution = ''
         self.greedy_possibilities = ''
 
@@ -56,7 +57,12 @@ class Application(tk.Tk):
             self.root_frame.status.set('Found solution!')
 
         # Start genetic algorithm search for result
-        # self.ga_solver()
+        self.ga_solver()
+
+    def _on_show(self, *_):
+        popup = tk.Toplevel()
+        chart_view = ui.YieldChartView(popup, self.min_fitness_values, self.mean_fitness_values)
+        chart_view.pack(fill='both', expand=True)
 
     def update_status(self, new_status):
         self.root_frame.status.set(new_status)
@@ -93,7 +99,9 @@ class Application(tk.Tk):
             status_callback=self.update_status,
             final_callback=self.final_result
         )
-        ga_problem.ga_solve()
+        self.min_fitness_values, self.mean_fitness_values = ga_problem.ga_solve()
+
+        self.root_frame.show_ga_stats()
 
 
 if __name__ == "__main__":
